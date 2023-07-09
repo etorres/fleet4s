@@ -3,7 +3,7 @@ package fleet.adapter.persistence.row
 
 import fleet.domain.model.Company
 
-import doobie.Meta
+import doobie.Read
 import io.github.arainko.ducktape.*
 
 final case class CompanyRow(companyId: Long, companyName: String, companyTimezone: String)
@@ -19,4 +19,6 @@ object CompanyRow:
           Field.renamed(_.timezone, _.companyTimezone),
         )
 
-  given companyRowMeta: Meta[CompanyRow] = ???
+  given companyRowRead: Read[CompanyRow] = Read[(Long, String, String)].map {
+    case (id, name, timezone) => CompanyRow(id, name, timezone)
+  }

@@ -2,8 +2,9 @@ package es.eriktorr
 package fleet.adapter.persistence.row
 
 import fleet.domain.model.Customer
+import fleet.shared.adapter.persistence.TemporalMapper.localDateMeta
 
-import doobie.Meta
+import doobie.Read
 import io.github.arainko.ducktape.*
 
 import java.time.LocalDate
@@ -16,4 +17,6 @@ object CustomerRow:
       .into[Customer]
       .transform(Field.renamed(_.id, _.customerId), Field.renamed(_.name, _.customerName))
 
-  given customerRowMeta: Meta[CustomerRow] = ???
+  given customerRowRead: Read[CustomerRow] = Read[(Long, String, LocalDate)].map {
+    case (id, name, birthdate) => CustomerRow(id, name, birthdate)
+  }

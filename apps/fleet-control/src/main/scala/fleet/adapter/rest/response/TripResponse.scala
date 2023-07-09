@@ -2,7 +2,7 @@ package es.eriktorr
 package fleet.adapter.rest.response
 
 import fleet.domain.model.{Status, Trip}
-import fleet.shared.time.ZonedDateTimeExtensions.{ageAt, dateAt}
+import fleet.shared.time.TemporalExtensions.ZonedDateTimeExtensions.{ageAt, dateAt}
 
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, Json}

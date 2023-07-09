@@ -2,11 +2,14 @@ package es.eriktorr
 package fleet.adapter.persistence.row
 
 import fleet.domain.model.*
+import fleet.shared.adapter.persistence.TemporalMapper.utcDateTimeMeta
 
-import doobie.Meta
+import cats.implicits.catsSyntaxEither
+import doobie.{Get, Meta, Read}
 import io.github.arainko.ducktape.*
 
 import java.time.ZonedDateTime
+import scala.util.Try
 
 final case class TripRow(
     tripId: Long,
@@ -30,4 +33,11 @@ object TripRow:
           Field.const(_.customer, customer),
         )
 
-  given tripRowMeta: Meta[TripRow] = ???
+  given statusRead: Get[Status] =
+    Get[String].temap(x => Try(Status.valueOf(x)).toEither.leftMap(_.getMessage.nn))
+
+  given tripRowRead: Read[TripRow] =
+    Read[(Long, String, ZonedDateTime, ZonedDateTime, Double, Status)].map {
+      case (id, timezone, startOn, endAt, distance, status) =>
+        TripRow(id, timezone, startOn, endAt, distance, status)
+    }

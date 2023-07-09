@@ -3,7 +3,7 @@ package fleet.adapter.persistence.row
 
 import fleet.domain.model.{Branch, Company}
 
-import doobie.Meta
+import doobie.Read
 import io.github.arainko.ducktape.*
 
 final case class BranchRow(branchId: Long, branchName: String, branchTimezone: String)
@@ -20,4 +20,6 @@ object BranchRow:
           Field.const(_.company, company),
         )
 
-  given branchRowMeta: Meta[BranchRow] = ???
+  given branchRowRead: Read[BranchRow] = Read[(Long, String, String)].map {
+    case (id, name, timezone) => BranchRow(id, name, timezone)
+  }

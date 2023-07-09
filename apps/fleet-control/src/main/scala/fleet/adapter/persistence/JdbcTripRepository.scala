@@ -14,32 +14,32 @@ import java.time.ZonedDateTime
 final class JdbcTripRepository(transactor: HikariTransactor[IO]) extends TripRepository:
   override def listAll(): IO[List[Trip]] =
     sql"""SELECT
-         |  branch.id AS branchId,
-         |  branch.name AS branchName,
-         |  branch.timezone AS branchTimezone,
-         |  car.id AS carId,
+         |  branch.id branchId,
+         |  branch.name branchName,
+         |  branch.timezone branchTimezone,
+         |  car.id carId,
          |  car.model,
-         |  car.chassis_number AS chassisNumber,
+         |  car.chassis_number chassisNumber,
          |  car.color,
-         |  car.registration_number AS registrationNumber,
-         |  company.id AS companyId,
-         |  company.name AS companyName,
-         |  company.timezone AS companyTimezone,
-         |  customer.id AS customerId,
-         |  customer.name AS customerName,
-         |  customer.birthdate
-         |  driver.id AS driverId,
-         |  driver.name AS driverName,
-         |  driver.license_number AS licenseNumber,
-         |  trip.id AS tripId,
-         |  trip.timezone AS tripTimezone,
-         |  trip.start_on AS startOn,
-         |  trip.end_at AS endAt,
+         |  car.registration_number registrationNumber,
+         |  company.id companyId,
+         |  company.name companyName,
+         |  company.timezone companyTimezone,
+         |  customer.id customerId,
+         |  customer.name customerName,
+         |  customer.birthdate,
+         |  driver.id driverId,
+         |  driver.name driverName,
+         |  driver.license_number licenseNumber,
+         |  trip.id tripId,
+         |  trip.timezone tripTimezone,
+         |  trip.start_on startOn,
+         |  trip.end_at endAt,
          |  trip.distance,
          |  trip.status
          |FROM trip
-         |INNER JOIN cars ON trip.car_id = cars.id
-         |INNER JOIN branch ON cars.branch_id = branch.id
+         |INNER JOIN car ON trip.car_id = car.id
+         |INNER JOIN branch ON car.branch_id = branch.id
          |INNER JOIN company ON branch.company_id = company.id
          |INNER JOIN driver ON trip.driver_id = driver.id
          |INNER JOIN customer ON trip.customer_id = customer.id""".stripMargin

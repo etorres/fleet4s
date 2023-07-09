@@ -10,7 +10,7 @@ import fleet.shared.application.JdbcTestConfig
 import fleet.shared.spec.CollectionGenerators.nDistinct
 import fleet.shared.spec.MySqlSuite
 
-import cats.implicits.toTraverseOps
+import cats.implicits.{toFoldableOps, toTraverseOps}
 import org.scalacheck.Gen
 import org.scalacheck.cats.implicits.*
 import org.scalacheck.effect.PropF.forAllF
@@ -19,10 +19,11 @@ final class JdbcTripRepositorySuite extends MySqlSuite:
   test("should list all trips"):
     forAllF(testCaseGen): testCase =>
       MySqlTestTransactor(JdbcTestConfig.FleetDatabase).testTransactorResource.use: transactor =>
+        val companyTestRepository = JdbcCompanyTestRepository(transactor)
         val tripRepository = JdbcTripRepository(transactor)
         (for
+          _ <- testCase.companyRows.traverse_(companyTestRepository.add)
           result <- tripRepository.listAll()
-          _ = println("")
         yield result).assertEquals(testCase.expectedTrips)
 
 object JdbcTripRepositorySuite:

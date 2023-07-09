@@ -8,5 +8,4 @@ final case class Car(
     color: String,
     registrationNumber: String,
     branch: Branch,
-    trips: List[Trip],
 )

@@ -12,7 +12,7 @@ import doobie.implicits.{toConnectionIOOps, toSqlInterpolator}
 import java.time.ZonedDateTime
 
 final class JdbcTripRepository(transactor: HikariTransactor[IO]) extends TripRepository:
-  override def findAll(): IO[List[Trip]] =
+  override def listAll(): IO[List[Trip]] =
     sql"""SELECT
          |  branch.id AS branchId,
          |  branch.name AS branchName,

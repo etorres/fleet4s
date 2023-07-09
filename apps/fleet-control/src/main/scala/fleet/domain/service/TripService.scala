@@ -8,7 +8,7 @@ import cats.effect.IO
 import java.time.ZonedDateTime
 
 final class TripService(tripRepository: TripRepository):
-  def findAll(): IO[List[Trip]] = tripRepository.findAll()
+  def findAll(): IO[List[Trip]] = tripRepository.listAll()
 
   def findAllByStartOnIsBetween(from: ZonedDateTime, to: ZonedDateTime): IO[List[Trip]] =
     tripRepository.findAllByStartOnIsBetween(from, to)

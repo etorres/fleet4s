@@ -65,6 +65,6 @@ object FleetControlConfig:
           name = "FLEET4S_JDBC_USERNAME",
           help = "Set JDBC Username.",
         ),
-      ).mapN(JdbcConfig.postgresql)
+      ).mapN(JdbcConfig.mysql)
 
     (httpServerConfig, jdbcConfig).mapN(FleetControlConfig.apply)

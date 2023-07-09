@@ -22,7 +22,7 @@ final class FleetControlConfigSuite extends FunSuite:
         .parse(List.empty, sys.env),
       FleetControlConfig(
         HttpServerConfig(host"localhost", port"8000"),
-        JdbcConfig.postgresql(
+        JdbcConfig.mysql(
           Range(2, 4),
           ConnectUrl("jdbc:postgresql://localhost:3306/database_name".refine),
           Secret(Password("database_password".refine)),

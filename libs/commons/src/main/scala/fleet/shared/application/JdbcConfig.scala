@@ -34,7 +34,7 @@ object JdbcConfig:
   object Username:
     def apply(x: String :| NonEmptyString): Username = x
 
-  def postgresql(
+  def mysql(
       connections: Range[Int],
       connectUrl: ConnectUrl,
       password: Secret[Password],
@@ -42,7 +42,7 @@ object JdbcConfig:
   ): JdbcConfig = JdbcConfig(
     connections,
     connectUrl,
-    DriverClassName.applyUnsafe("org.postgresql.Driver"),
+    DriverClassName.applyUnsafe("com.mysql.cj.jdbc.Driver"),
     password,
     username,
   )

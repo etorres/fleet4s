@@ -5,8 +5,8 @@ import fleet.adapter.persistence.JdbcTripRepository
 import fleet.application.*
 import fleet.domain.service.TripService
 import fleet.shared.adapter.persistence.JdbcTransactor
-import fleet.shared.application.HealthService
-import fleet.shared.application.HealthService.ServiceName
+import fleet.shared.adapter.rest.HealthService
+import fleet.shared.adapter.rest.HealthService.ServiceName
 
 import cats.effect.{ExitCode, IO}
 import cats.implicits.{catsSyntaxTuple2Semigroupal, showInterpolator}
@@ -31,13 +31,13 @@ object FleetControlApplication
       tripRepository = JdbcTripRepository(transactor)
       tripService = TripService(tripRepository)
       given Logger[IO] = logger
-      _ <- HttpServer.impl(
-        FeedControlHttpApp(tripService, params.verbose).httpApp,
-        config.httpServerConfig,
-      )
-      _ <- HealthService(
+      healthService <- HealthService.resourceWith(
         config.healthConfig,
         ServiceName("FleetControlApplication".refine),
-      ).healthResource
-    yield ()).use(_ => IO.never)
+      )
+      _ <- HttpServer.impl(
+        FeedControlHttpApp(healthService, tripService, params.verbose).httpApp,
+        config.httpServerConfig,
+      )
+    yield healthService).use(_.markReady.flatMap(_ => IO.never))
   yield ExitCode.Success

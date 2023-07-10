@@ -50,9 +50,6 @@ object FleetControlConfig:
         .env[LivenessPath](name = "FLEET4S_HEALTH_LIVENESS_PATH", help = "Set liveness path.")
         .withDefault(HealthConfig.defaultLivenessPath),
       Opts
-        .env[Port](name = "FLEET4S_HEALTH_PORT", help = "Set health port.")
-        .withDefault(HealthConfig.defaultPort),
-      Opts
         .env[ReadinessPath](name = "FLEET4S_HEALTH_READINESS_PATH", help = "Set readiness path.")
         .withDefault(HealthConfig.defaultReadinessPath),
     ).mapN(HealthConfig.apply)

@@ -24,7 +24,6 @@ final class FleetControlConfigSuite extends FunSuite:
       FleetControlConfig(
         HealthConfig(
           LivenessPath("/liveness-path".refine),
-          port"9991",
           ReadinessPath("/readiness-path".refine),
         ),
         HttpServerConfig(host"localhost", port"8000"),

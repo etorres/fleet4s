@@ -13,18 +13,22 @@ import scala.concurrent.duration.DurationInt
 final class HealthService(healthConfig: HealthConfig, serviceName: ServiceName):
   val healthResource: Resource[IO, HealthServer] =
     Resource.make(
-      IO.blocking(
-        HealthServer(
-          serviceName,
-          healthConfig.port.value,
-          healthConfig.livenessPath,
-          healthConfig.readinessPath,
-        ),
-      ),
+      for
+        healthServer <- IO.blocking(
+          HealthServer(
+            serviceName,
+            healthConfig.port.value,
+            healthConfig.livenessPath,
+            healthConfig.readinessPath,
+          ),
+        )
+        _ <- IO.pure(healthServer.markReady())
+      yield healthServer,
     ) { healthServer =>
-      IO.blocking(healthServer.markUnready())
-        .timeout(5.seconds)
-        .guarantee(IO.blocking(healthServer.close()))
+      (for
+        _ <- IO.blocking(healthServer.markUnready())
+        _ <- IO.blocking(healthServer.close())
+      yield ()).timeout(5.seconds)
     }
 
 object HealthService:

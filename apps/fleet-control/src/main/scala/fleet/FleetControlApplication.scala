@@ -16,8 +16,6 @@ import io.github.iltotore.iron.refine
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
-import scala.concurrent.duration.DurationInt
-
 object FleetControlApplication
     extends CommandIOApp(name = "fleet-control", header = "Fleet Control System REST API"):
   override def main: Opts[IO[ExitCode]] = (FleetControlConfig.opts, FleetControlParams.opts).mapN {
@@ -37,9 +35,9 @@ object FleetControlApplication
         FeedControlHttpApp(tripService, params.verbose).httpApp,
         config.httpServerConfig,
       )
-      health <- HealthService(
+      _ <- HealthService(
         config.healthConfig,
         ServiceName("FleetControlApplication".refine),
       ).healthResource
-    yield health).use(health => IO.delay(health.markReady()).timeout(5.seconds).guarantee(IO.never))
+    yield ()).use(_ => IO.never)
   yield ExitCode.Success

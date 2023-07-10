@@ -39,6 +39,7 @@ object FleetControlConfig:
   given Show[FleetControlConfig] =
     import scala.language.unsafeNulls
     Show.show(config => show"""{
+                              |health: ${config.healthConfig},
                               |http-server: ${config.httpServerConfig},
                               |jdbc: ${config.jdbcConfig}
                               |}""".stripMargin.replaceAll("\\R", ""))

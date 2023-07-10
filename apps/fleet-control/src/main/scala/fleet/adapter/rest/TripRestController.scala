@@ -15,9 +15,9 @@ final class TripRestController(tripService: TripService):
     case GET -> Root / "trips" :? TimezoneQueryParamMatcher(timezone) =>
       val response = for
         trips <- tripService.findAll()
-        response = trips.map(trip => TripResponse.from(trip, timezone))
+        response = trips.map(trip => TripResponse.from(trip, timezone.getOrElse("UTC")))
       yield response
       Ok(response)
   }
 
-  private object TimezoneQueryParamMatcher extends QueryParamDecoderMatcher[String]("tz")
+  private object TimezoneQueryParamMatcher extends OptionalQueryParamDecoderMatcher[String]("tz")

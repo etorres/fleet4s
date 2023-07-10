@@ -2,8 +2,9 @@ package es.eriktorr
 package fleet.application
 
 import fleet.shared.Secret
+import fleet.shared.application.HealthConfig.{LivenessPath, ReadinessPath}
 import fleet.shared.application.JdbcConfig.{ConnectUrl, Password, Username}
-import fleet.shared.application.{HttpServerConfig, JdbcConfig}
+import fleet.shared.application.{HealthConfig, HttpServerConfig, JdbcConfig}
 
 import cats.collections.Range
 import cats.implicits.catsSyntaxEitherId
@@ -21,6 +22,11 @@ final class FleetControlConfigSuite extends FunSuite:
       Command(name = "name", header = "header")(FleetControlConfig.opts)
         .parse(List.empty, sys.env),
       FleetControlConfig(
+        HealthConfig(
+          LivenessPath("/liveness-path".refine),
+          port"9991",
+          ReadinessPath("/readiness-path".refine),
+        ),
         HttpServerConfig(host"localhost", port"8000"),
         JdbcConfig.mysql(
           Range(2, 4),

@@ -2,7 +2,12 @@ package es.eriktorr
 package fleet.application
 
 import fleet.shared.Secret
+import fleet.shared.application.HealthConfig.{LivenessPath, ReadinessPath}
 import fleet.shared.application.JdbcConfig.{ConnectUrl, Password, Username}
+import fleet.shared.application.argument.HealthConfigArgument.{
+  livenessPathArgument,
+  readinessPathArgument,
+}
 import fleet.shared.application.argument.HostArgument.hostArgument
 import fleet.shared.application.argument.JdbcConfigArgument.{
   connectUrlArgument,
@@ -11,15 +16,21 @@ import fleet.shared.application.argument.JdbcConfigArgument.{
 }
 import fleet.shared.application.argument.PortArgument.portArgument
 import fleet.shared.application.argument.RangeArgument.intRangeArgument
-import fleet.shared.application.{HttpServerConfig, JdbcConfig}
+import fleet.shared.application.{HealthConfig, HttpServerConfig, JdbcConfig}
 
 import cats.Show
 import cats.collections.Range
-import cats.implicits.{catsSyntaxTuple2Semigroupal, catsSyntaxTuple4Semigroupal, showInterpolator}
+import cats.implicits.{
+  catsSyntaxTuple2Semigroupal,
+  catsSyntaxTuple3Semigroupal,
+  catsSyntaxTuple4Semigroupal,
+  showInterpolator,
+}
 import com.comcast.ip4s.{Host, Port}
 import com.monovore.decline.Opts
 
 final case class FleetControlConfig(
+    healthConfig: HealthConfig,
     httpServerConfig: HttpServerConfig,
     jdbcConfig: JdbcConfig,
 )
@@ -33,6 +44,18 @@ object FleetControlConfig:
                               |}""".stripMargin.replaceAll("\\R", ""))
 
   def opts: Opts[FleetControlConfig] =
+    val healthConfig = (
+      Opts
+        .env[LivenessPath](name = "FLEET4S_HEALTH_LIVENESS_PATH", help = "Set liveness path.")
+        .withDefault(HealthConfig.defaultLivenessPath),
+      Opts
+        .env[Port](name = "FLEET4S_HEALTH_PORT", help = "Set health port.")
+        .withDefault(HealthConfig.defaultPort),
+      Opts
+        .env[ReadinessPath](name = "FLEET4S_HEALTH_READINESS_PATH", help = "Set readiness path.")
+        .withDefault(HealthConfig.defaultReadinessPath),
+    ).mapN(HealthConfig.apply)
+
     val httpServerConfig = (
       Opts
         .env[Host](name = "FLEET4S_HTTP_HOST", help = "Set HTTP host.")
@@ -67,4 +90,4 @@ object FleetControlConfig:
         ),
       ).mapN(JdbcConfig.mysql)
 
-    (httpServerConfig, jdbcConfig).mapN(FleetControlConfig.apply)
+    (healthConfig, httpServerConfig, jdbcConfig).mapN(FleetControlConfig.apply)

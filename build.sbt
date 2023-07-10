@@ -28,6 +28,7 @@ lazy val commons = project
   .configure(baseSettings)
   .settings(
     libraryDependencies ++= Seq(
+      "ca.dvgi" %% "healthful" % "0.1.0" % Optional,
       "com.comcast" %% "ip4s-core" % "3.3.0" % Optional,
       "com.monovore" %% "decline" % "2.4.1" % Optional,
       "com.zaxxer" % "HikariCP" % "5.0.1" % Optional exclude ("org.slf4j", "slf4j-api"),
@@ -51,6 +52,7 @@ lazy val `fleet-control` = project
   .configure(baseSettings)
   .settings(
     libraryDependencies ++= Seq(
+      "ca.dvgi" %% "healthful" % "0.1.0" exclude ("org.slf4j", "slf4j-api"),
       "co.fs2" %% "fs2-core" % "3.7.0",
       "co.fs2" %% "fs2-io" % "3.7.0",
       "com.comcast" %% "ip4s-core" % "3.3.0",
@@ -116,6 +118,9 @@ lazy val baseSettings: Project => Project = _.settings(
   Test / fork := true,
   Test / envVars := Map(
     "SBT_TEST_ENV_VARS" -> "true",
+    "FLEET4S_HEALTH_LIVENESS_PATH" -> "/liveness-path",
+    "FLEET4S_HEALTH_PORT" -> "9991",
+    "FLEET4S_HEALTH_READINESS_PATH" -> "/readiness-path",
     "FLEET4S_HTTP_HOST" -> "localhost",
     "FLEET4S_HTTP_PORT" -> "8000",
     "FLEET4S_JDBC_CONNECTIONS" -> "2:4",

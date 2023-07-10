@@ -33,7 +33,11 @@ final class JdbcTripRepositorySuite extends MySqlSuite:
           _ <- testCase.customers.traverse_(customerTestRepository.add)
           _ <- testCase.trips.traverse_(tripTestRepository.add)
           result <- tripRepository.listAll()
-        yield result).assertEquals(testCase.expectedTrips)
+          // TODO
+          _ = result.sortBy(_.id).foreach(println)
+          _ = testCase.expectedTrips.sortBy(_.id).foreach(println)
+        // TODO
+        yield result.sortBy(_.id)).assertEquals(testCase.expectedTrips.sortBy(_.id))
 
 object JdbcTripRepositorySuite:
   final private case class TestCase(

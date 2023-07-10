@@ -3,12 +3,15 @@ package fleet.adapter.persistence
 
 import fleet.adapter.persistence.JdbcTripTestRepository.statusPut
 import fleet.domain.model.{Status, Trip}
-import fleet.shared.adapter.persistence.TemporalMapper.utcDateTimeMeta
 
 import cats.effect.IO
 import doobie.Put
 import doobie.hikari.HikariTransactor
+import doobie.implicits.javasql.*
 import doobie.implicits.{toConnectionIOOps, toSqlInterpolator}
+
+import java.sql.Timestamp
+import java.time.ZonedDateTime
 
 final class JdbcTripTestRepository(transactor: HikariTransactor[IO]):
   def add(trip: Trip): IO[Unit] =
@@ -26,8 +29,8 @@ final class JdbcTripTestRepository(transactor: HikariTransactor[IO]):
          |) VALUES (
          |  ${trip.id},
          |  ${trip.timezone},
-         |  ${trip.startOn},
-         |  ${trip.endAt},
+         |  ${timestampFrom(trip.startOn)},
+         |  ${timestampFrom(trip.endAt)},
          |  ${trip.distance},
          |  ${trip.status},
          |  ${trip.car.id},
@@ -36,6 +39,10 @@ final class JdbcTripTestRepository(transactor: HikariTransactor[IO]):
          |)""".stripMargin.update.run
       .transact(transactor)
       .void
+
+  private def timestampFrom(zonedDateTime: ZonedDateTime) =
+    import scala.language.unsafeNulls
+    Timestamp.valueOf(zonedDateTime.toLocalDateTime)
 
 object JdbcTripTestRepository:
   given statusPut: Put[Status] = Put[String].tcontramap(_.toString)

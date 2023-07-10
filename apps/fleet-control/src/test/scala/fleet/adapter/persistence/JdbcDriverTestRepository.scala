@@ -1,23 +1,23 @@
 package es.eriktorr
 package fleet.adapter.persistence
 
-import fleet.domain.model.Company
+import fleet.domain.model.Driver
 
 import cats.effect.IO
 import doobie.hikari.HikariTransactor
 import doobie.implicits.{toConnectionIOOps, toSqlInterpolator}
 
-final class JdbcCompanyTestRepository(transactor: HikariTransactor[IO]):
-  def add(company: Company): IO[Unit] =
+final class JdbcDriverTestRepository(transactor: HikariTransactor[IO]):
+  def add(driver: Driver): IO[Unit] =
     sql"""
-         |INSERT INTO company (
+         |INSERT INTO driver (
          |  id,
          |  name,
-         |  timezone
+         |  license_number
          |) VALUES (
-         |  ${company.id},
-         |  ${company.name},
-         |  ${company.timezone}
+         |  ${driver.id},
+         |  ${driver.name},
+         |  ${driver.licenseNumber}
          |)""".stripMargin.update.run
       .transact(transactor)
       .void

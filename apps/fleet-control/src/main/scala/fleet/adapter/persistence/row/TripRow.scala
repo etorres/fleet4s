@@ -33,7 +33,7 @@ object TripRow:
           Field.const(_.customer, customer),
         )
 
-  given statusRead: Get[Status] =
+  given statusGet: Get[Status] =
     Get[String].temap(x => Try(Status.valueOf(x)).toEither.leftMap(_.getMessage.nn))
 
   given tripRowRead: Read[TripRow] =

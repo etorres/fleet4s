@@ -2,12 +2,13 @@ package es.eriktorr
 package fleet.domain.model
 
 import fleet.shared.spec.StringGenerators.alphaNumericStringBetween
-import fleet.shared.spec.TemporalGenerators.{after, instantGen, localDateGen}
+import fleet.shared.spec.TemporalGenerators.{before, localDateGen, withinInstantRange}
 
+import cats.collections.Range
 import org.scalacheck.Gen
 
+import java.time.*
 import java.time.temporal.ChronoUnit
-import java.time.{Instant, ZonedDateTime, ZoneId}
 import java.util.TimeZone
 
 object TripGenerators:
@@ -55,8 +56,28 @@ object TripGenerators:
 
   val statusGen: Gen[Status] = Gen.oneOf(Status.values.toList)
 
+  private val maxMySqlTimestamp =
+    import scala.language.unsafeNulls
+    LocalDate.of(2038, Month.JANUARY, 19).atStartOfDay().toInstant(ZoneOffset.UTC)
+
+  /** Generates safe MySQL timestamps.
+    *
+    * @see
+    *   [[https://dev.mysql.com/doc/refman/8.0/en/datetime.html The DATE, DATETIME, and TIMESTAMP Types]]
+    */
+  private val sqlInstantGen: Gen[Instant] =
+    import scala.language.unsafeNulls
+    before(maxMySqlTimestamp.minus(400L, ChronoUnit.DAYS))
+
+  private def afterSqlInstantGen(instant: Instant): Gen[Instant] =
+    import scala.language.unsafeNulls
+    withinInstantRange(
+      Range(instant.plus(1L, ChronoUnit.DAYS), maxMySqlTimestamp),
+    )
+
   private def toSqlTimestamp(instant: Instant) =
-    instant.atZone(ZoneId.of("UTC")).nn.truncatedTo(ChronoUnit.SECONDS).nn
+    import scala.language.unsafeNulls
+    instant.atZone(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS)
 
   def tripGen(
       idGen: Gen[Long] = idGen,
@@ -66,9 +87,9 @@ object TripGenerators:
   ): Gen[Trip] = for
     id <- idGen
     timezone <- timezoneGen
-    instant <- instantGen
+    instant <- sqlInstantGen
     startOn = toSqlTimestamp(instant)
-    endAt <- after(instant).map(toSqlTimestamp)
+    endAt <- afterSqlInstantGen(instant).map(toSqlTimestamp)
     distance <- Gen.choose(1d, 1_000d)
     status <- statusGen
     car <- carGen

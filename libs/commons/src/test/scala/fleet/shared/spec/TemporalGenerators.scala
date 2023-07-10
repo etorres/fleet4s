@@ -6,7 +6,7 @@ import com.fortysevendeg.scalacheck.datetime.GenDateTime.genDateTimeWithinRange
 import com.fortysevendeg.scalacheck.datetime.YearRange
 import com.fortysevendeg.scalacheck.datetime.instances.jdk8.*
 import com.fortysevendeg.scalacheck.datetime.jdk8.ArbitraryJdk8.*
-import com.fortysevendeg.scalacheck.datetime.jdk8.granularity.days
+import com.fortysevendeg.scalacheck.datetime.jdk8.granularity.seconds
 import org.scalacheck.Gen
 
 import java.time.*

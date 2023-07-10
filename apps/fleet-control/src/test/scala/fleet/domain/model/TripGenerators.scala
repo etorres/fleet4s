@@ -6,7 +6,8 @@ import fleet.shared.spec.TemporalGenerators.{after, instantGen, localDateGen}
 
 import org.scalacheck.Gen
 
-import java.time.ZoneId
+import java.time.temporal.ChronoUnit
+import java.time.{Instant, ZonedDateTime, ZoneId}
 import java.util.TimeZone
 
 object TripGenerators:
@@ -54,6 +55,9 @@ object TripGenerators:
 
   val statusGen: Gen[Status] = Gen.oneOf(Status.values.toList)
 
+  private def toSqlTimestamp(instant: Instant) =
+    instant.atZone(ZoneId.of("UTC")).nn.truncatedTo(ChronoUnit.SECONDS).nn
+
   def tripGen(
       idGen: Gen[Long] = idGen,
       carGen: Gen[Car],
@@ -63,8 +67,8 @@ object TripGenerators:
     id <- idGen
     timezone <- timezoneGen
     instant <- instantGen
-    startOn = instant.atZone(ZoneId.of("UTC")).nn
-    endAt <- after(instant).map(_.atZone(ZoneId.of("UTC")).nn)
+    startOn = toSqlTimestamp(instant)
+    endAt <- after(instant).map(toSqlTimestamp)
     distance <- Gen.choose(1d, 1_000d)
     status <- statusGen
     car <- carGen
